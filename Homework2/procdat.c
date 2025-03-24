@@ -5,22 +5,33 @@
 
 #include "procdat.h"
 /* -- utils functions--*/
-void swap(ProcDat* left, ProcDat* right){
+static void swap(ProcDat* left, ProcDat* right){
     ProcDat tmp = *left;
     *left = *right; 
     *right = tmp;
 }
 
-void arrorder(SchDat* sdata){
+// different function use different swap && judge
+static void uni_swap(ProcDat* left, ProcDat* right, const char* funcname){
+    if((!strcmp(funcname, "FCFS") || !strcmp(funcname, "RR")) && (left -> arrtime > right -> arrtime || 
+        (left -> arrtime == right -> arrtime && left -> jobtime >= right -> jobtime))) {swap(left, right); return;}
+
+    if((!strcmp(funcname, "SJF") || !strcmp(funcname, "SRTF") || 
+        !strcmp(funcname, "PS")) && left -> arrtime > right -> arrtime) {swap(left, right); return;}
+
+    if(!strcmp(funcname, "nPS") && (left -> priority < right -> priority || 
+        (left -> priority == right -> priority && left -> jobtime >= right -> jobtime))) {swap(left, right); return;}
+}
+
+static void arrorder(SchDat* sdata, const char* funcname){
     for(uint i = 0; i < sdata -> listlen; ++i)
         for(uint j = sdata -> listlen - 1; j > i; j--)
-            if(sdata -> proclist[i].arrtime > sdata -> proclist[j].arrtime)
-                swap(&sdata -> proclist[i], &sdata -> proclist[j]);
+            uni_swap(&sdata -> proclist[i], &sdata -> proclist[j], funcname);
 }
 /* -- utils functions--*/
 
 void FCFS(SchDat *sdata, RProcDat *result){
-    arrorder(sdata);
+    arrorder(sdata, __func__);
 
     uint ntime = sdata -> proclist[0].arrtime;
 
@@ -35,7 +46,7 @@ void FCFS(SchDat *sdata, RProcDat *result){
 }
 
 void SJF(SchDat* sdata, RProcDat *result){
-    arrorder(sdata);
+    arrorder(sdata, __func__);
 
     uint tail = 0, head = 0;// head && tail ptr
     uint ntime = 0;// now time
@@ -64,11 +75,11 @@ void SJF(SchDat* sdata, RProcDat *result){
 }
 
 void SRTF(SchDat* sdata, RProcDat *result){
-    
+    arrorder(sdata, __func__);
 }
 
 void RR(SchDat* sdata, RProcDat *result){
-    arrorder(sdata);
+    arrorder(sdata, __func__);
 
     boole *eflags = (boole*) calloc(sdata -> listlen, sizeof(boole));// eflags, = true if proc is done
     uint head = 0, cnt = sdata -> listlen;// head in circular que && left counts
@@ -105,7 +116,38 @@ void RR(SchDat* sdata, RProcDat *result){
     }
 }
 
-void PS(SchDat* sdata, RProcDat *result, boole pre0not){
+void PS(SchDat* sdata, RProcDat *result){
+    arrorder(sdata, __func__);
+
+    uint tail = 0, head = 0;// head && tail ptr
+    uint ntime = 0;// now time
+
+    while(head != tail || tail != sdata -> listlen){
+        if(head == tail) ntime = sdata -> proclist[head].arrtime;
+
+        if(sdata -> proclist[tail].arrtime <= ntime && tail != sdata -> listlen){
+            while(sdata -> proclist[tail].arrtime <= ntime && tail != sdata -> listlen) ++tail;
+
+            for(uint i = head; i < tail; ++i)
+                for(uint j = tail - 1; j > i; --j)
+                    uni_swap(&sdata -> proclist[i], &sdata -> proclist[j], "nPS");
+            
+
+        }// opt:if add none, pass sort
+
+        result[head].tpnum = 1; 
+        result[head].procname = sdata -> proclist[head].procname;
+        result[head].start[0] = MAX(ntime, sdata -> proclist[head].arrtime);
+        result[head].end[0] = result[head].start[0] + sdata -> proclist[head].jobtime;
+
+        ntime = result[head].end[0];
+
+        ++head;
+    }
+}
+
+// tool functions
+void printGt(RProcDat* result){
 
 }
 

@@ -3,3 +3,5 @@
 OtherClone/*
 
 *.o
+
+/build/*

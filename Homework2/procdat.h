@@ -24,10 +24,13 @@ typedef struct SchDat{
     uint tmlen;// time period length
 }SchDat;
 
+//tool functions
+void printGt(RProcDat*);
+
 // scheduler functions
 void FCFS(SchDat*, RProcDat*);
 void SJF(SchDat*, RProcDat*);
 void SRTF(SchDat*, RProcDat*);
 void RR(SchDat*, RProcDat*);
-void PS(SchDat*, RProcDat*, boole);
+void PS(SchDat*, RProcDat*);
 #endif
