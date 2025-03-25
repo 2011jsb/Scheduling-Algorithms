@@ -53,6 +53,8 @@ void FCFS(SchDat *sdata, RProcDat *result){
     for(uint i = 0; i < sdata -> listlen; ++i){
         result[i].tpnum = 1; 
         result[i].procname = sdata -> proclist[i].procname;
+        result[i].arrtime = sdata -> proclist[i].arrtime;
+        result[i].jobtime = sdata -> proclist[i].jobtime;
         result[i].start[0] = MAX(ntime, sdata -> proclist[i].arrtime);
         result[i].end[0] = result[i].start[0] + sdata -> proclist[i].jobtime;
 
@@ -79,6 +81,8 @@ void SJF(SchDat* sdata, RProcDat *result){
 
         result[head].tpnum = 1; 
         result[head].procname = sdata -> proclist[head].procname;
+        result[head].arrtime = sdata -> proclist[head].arrtime;
+        result[head].jobtime = sdata -> proclist[head].jobtime;
         result[head].start[0] = MAX(ntime, sdata -> proclist[head].arrtime);
         result[head].end[0] = result[head].start[0] + sdata -> proclist[head].jobtime;
 
@@ -96,10 +100,12 @@ void SRTF(SchDat* sdata, RProcDat *result){
         leftime[i] = sdata -> proclist[i].jobtime; // init left list
         result[i].tpnum = 0;// init len
         result[i].procname = sdata -> proclist[i].procname;// init name
+        result[i].arrtime = sdata -> proclist[i].arrtime;// init arrival time
+        result[i].jobtime = sdata -> proclist[i].jobtime;// init job time
     }
 
     uint head = 0, tail= 0; // head && tail ptr
-    uint ntime = sdata -> proclist[head].arrtime;
+    uint ntime = 0;
 
     while(head != tail || tail != sdata -> listlen){
         if(head == tail){
@@ -133,13 +139,20 @@ void SRTF(SchDat* sdata, RProcDat *result){
                     result[head].end[nindex] = sdata -> proclist[tail].arrtime;
                     leftime[head] -= sdata -> proclist[tail].arrtime - result[head].start[nindex];
                     ++ tail;
+
                 }else{
                     result[head].end[nindex] = result[head].start[nindex] + leftime[head];
                     leftime[head] = 0;
                 }
+            }else{
+                result[head].end[nindex] = result[head].start[nindex] + leftime[head];
+                leftime[head] = 0;
             }
 
+            ntime = result[head].end[nindex];// change ntime
+
             ++result[head].tpnum;
+
             if(!leftime[head]) ++head;// pop finished proc
         }
     }
@@ -155,6 +168,8 @@ void RR(SchDat* sdata, RProcDat *result){
     for(uint i = 0; i < sdata -> listlen; ++i) {
         result[i].tpnum = 0;// init len
         result[i].procname = sdata -> proclist[i].procname;// init name
+        result[i].arrtime = sdata -> proclist[i].arrtime;// init arrival time
+        result[i].jobtime = sdata -> proclist[i].jobtime;// init job time
     }
 
     while(cnt){
@@ -204,6 +219,8 @@ void PS(SchDat* sdata, RProcDat *result){
 
         result[head].tpnum = 1; 
         result[head].procname = sdata -> proclist[head].procname;
+        result[head].arrtime = sdata -> proclist[head].arrtime;
+        result[head].jobtime = sdata -> proclist[head].jobtime;
         result[head].start[0] = MAX(ntime, sdata -> proclist[head].arrtime);
         result[head].end[0] = result[head].start[0] + sdata -> proclist[head].jobtime;
 
@@ -214,27 +231,23 @@ void PS(SchDat* sdata, RProcDat *result){
 }
 
 // tool functions
-void printGt(RProcDat* result){
+AnalDat analysis(RProcDat* result, uint length){
+    AnalDat tmp;
+    uint AllTtime = 0, AllRtime = 0, AllWtime = 0, Alltime = 0, AllJobtime = 0;
+    for(uint i = 0; i < length; ++i){
+        uint burstime = result[i].end[result[i].tpnum - 1] - result[i].arrtime;
+        AllTtime += burstime;
+        AllRtime += result[i].start[0] - result[i].arrtime;
+        AllWtime += burstime - result[i].jobtime;
+        AllJobtime += result[i].jobtime;
+        Alltime = MAX(Alltime, result[i].end[result[i].tpnum - 1]);
+    }
 
-}
+    tmp.AvgTtime = (double)AllTtime / length ;
+    tmp.AvgRtime = (double)AllRtime / length ;
+    tmp.AvgWtime = (double)AllWtime / length ;
+    tmp.CPUtil = (double)AllJobtime / Alltime;
+    tmp.JobTput = (double)length / Alltime;
 
-int main(){
-    ProcDat tmp[5] = {
-        {.procname = "A", .priority = 0, .arrtime = 40, .jobtime = 20},
-        {.procname = "B", .priority = 0, .arrtime = 10, .jobtime = 5},
-        {.procname = "C", .priority = 0, .arrtime = 10, .jobtime = 10},
-        {.procname = "D", .priority = 0, .arrtime = 10, .jobtime = 15},
-        {.procname = "E", .priority = 0, .arrtime = 80, .jobtime = 17},
-    };
-    SchDat sdata = {
-        .listlen = 5,
-        .tmlen = 10,
-        .proclist = tmp,
-    };
-    
-    RProcDat* result = (RProcDat*)malloc(sdata.listlen * sizeof(RProcDat));;
-    SRTF(&sdata,result);
-    printf("set points");
-
-    free(result);
+    return tmp;
 }

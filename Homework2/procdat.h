@@ -15,6 +15,7 @@ typedef struct RProcDat{
     char *procname;
     uint start[256], end[256]; // time period start time and end time 
     uint tpnum;// time period num
+    uint arrtime, jobtime; // help analysis
 }RProcDat;
 
 // scheduler data
@@ -24,8 +25,17 @@ typedef struct SchDat{
     uint tmlen;// time period length
 }SchDat;
 
+// analysis data
+typedef struct AnalDat{
+    double AvgTtime;// Average Turnaround Time
+    double AvgRtime;// Average Response Time
+    double AvgWtime;// Average Waiting Time
+    double CPUtil;// CPU Utilization
+    double JobTput;// Job Throughput
+}AnalDat;
+
 //tool functions
-void printGt(RProcDat*);
+AnalDat analysis(RProcDat*, uint);
 
 // scheduler functions
 void FCFS(SchDat*, RProcDat*);
