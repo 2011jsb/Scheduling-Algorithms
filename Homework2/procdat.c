@@ -5,8 +5,20 @@
 
 #include "procdat.h"
 /* -- utils functions--*/
-static void swap(ProcDat* left, ProcDat* right){
+static void swap_ProcDat(ProcDat* left, ProcDat* right){
     ProcDat tmp = *left;
+    *left = *right; 
+    *right = tmp;
+}
+
+static void swap_RProcDat(RProcDat* left, RProcDat* right){
+    RProcDat tmp = *left;
+    *left = *right; 
+    *right = tmp;
+}
+
+static void swap_uint(uint* left, uint* right){
+    uint tmp = *left;
     *left = *right; 
     *right = tmp;
 }
@@ -14,16 +26,16 @@ static void swap(ProcDat* left, ProcDat* right){
 // different function use different swap && judge
 static void uni_swap(ProcDat* left, ProcDat* right, const char* funcname){
     if((!strcmp(funcname, "FCFS") || !strcmp(funcname, "RR") || !strcmp(funcname, "SRTF")) && (left -> arrtime > right -> arrtime || 
-        (left -> arrtime == right -> arrtime && left -> jobtime >= right -> jobtime))) {swap(left, right); return;}
+        (left -> arrtime == right -> arrtime && left -> jobtime >= right -> jobtime))) {swap(ProcDat, left, right); return;}
 
     if((!strcmp(funcname, "SJF") || !strcmp(funcname, "PS")) && 
-    left -> arrtime > right -> arrtime) {swap(left, right); return;}
+    left -> arrtime > right -> arrtime) {swap(ProcDat, left, right); return;}
 
     if(!strcmp(funcname, "nPS") && (left -> priority < right -> priority || 
-        (left -> priority == right -> priority && left -> jobtime >= right -> jobtime))) {swap(left, right); return;}
+        (left -> priority == right -> priority && left -> jobtime >= right -> jobtime))) {swap(ProcDat, left, right); return;}
 
     if(!strcmp(funcname, "nSJF") && (left -> jobtime > right -> jobtime || (left -> jobtime ==
-         right -> jobtime && left -> arrtime > right -> arrtime))) {swap(left, right); return;}
+         right -> jobtime && left -> arrtime > right -> arrtime))) {swap(ProcDat, left, right); return;}
 }
 
 static void arrorder(SchDat* sdata, const char* funcname){
@@ -79,33 +91,56 @@ void SJF(SchDat* sdata, RProcDat *result){
 void SRTF(SchDat* sdata, RProcDat *result){
     arrorder(sdata, __func__);
 
-    for(uint i = 0; i < sdata -> listlen; ++i) {
+    uint* leftime =  (uint*)malloc(sdata -> listlen * sizeof(uint));// the left job time
+    for(uint i = 0; i < sdata -> listlen; ++i){
+        leftime[i] = sdata -> proclist[i].jobtime; // init left list
         result[i].tpnum = 0;// init len
         result[i].procname = sdata -> proclist[i].procname;// init name
     }
 
-    typedef struct QNode{
-        uint index;
-        uint leftime;
-    }QNode;
-    QNode* readyque = (QNode*)calloc(sdata -> listlen, sizeof(uint));
-
-    uint head = 0, tail = 1;// head && tail ptr
-    uint ntime = sdata -> proclist[0].arrtime;
+    uint head = 0, tail= 0; // head && tail ptr
+    uint ntime = sdata -> proclist[head].arrtime;
 
     while(head != tail || tail != sdata -> listlen){
-        uint index = readyque[head].index, endtime = 0;
-        if(!result[index].tpnum){
-            result[index].start[result[index].tpnum] = MAX(sdata -> proclist[index].arrtime, ntime);
-            endtime = result[index].start[result[index].tpnum] + sdata -> proclist[index].jobtime;
+        if(head == tail){
+            while(sdata -> proclist[tail].arrtime == sdata -> proclist[head].arrtime) ++tail;
+            ntime = sdata -> proclist[head].arrtime;// jump the time gap
+        }else{
+            // sort the list
+            for(uint i = head; i < tail; ++i){
+                for(uint j = tail - 1; j > i; --j){
+                    if(leftime[i] > leftime[j] || (leftime[i] == leftime[j] && 
+                    sdata -> proclist[i].arrtime >= sdata -> proclist[j].arrtime)){
+                        swap(ProcDat, &sdata -> proclist[i], & sdata -> proclist[j]);
+                        swap(RProcDat, &result[i], &result[j]);
+                        swap(uint, &leftime[i], &leftime[j]);
+                    }
+                }
+            }
 
-            // find arrival event
-            for(uint i = index + 1; i < sdata -> listlen; ++i)
-                if(sdata -> proclist[i].arrtime <= endtime){
-                    readyque[tail].index = i;
-                    ++tail;
-                }else break;
-            
+            uint nindex = result[head].tpnum; // the run time period index
+
+            // new run time period
+            result[head].start[nindex] = ntime;
+
+            // test the next arrival time is enough
+            // because of the list already sorted by arrorder
+            if(tail != sdata -> listlen){
+                if(sdata -> proclist[tail].arrtime < result[head].start[nindex] + 
+                    leftime[head]){
+                    // if there's arrival events in run time, abort and finish this time period
+                    // change the ready queue as well
+                    result[head].end[nindex] = sdata -> proclist[tail].arrtime;
+                    leftime[head] -= sdata -> proclist[tail].arrtime - result[head].start[nindex];
+                    ++ tail;
+                }else{
+                    result[head].end[nindex] = result[head].start[nindex] + leftime[head];
+                    leftime[head] = 0;
+                }
+            }
+
+            ++result[head].tpnum;
+            if(!leftime[head]) ++head;// pop finished proc
         }
     }
 }
@@ -198,7 +233,7 @@ int main(){
     };
     
     RProcDat* result = (RProcDat*)malloc(sdata.listlen * sizeof(RProcDat));;
-    RR(&sdata,result);
+    SRTF(&sdata,result);
     printf("set points");
 
     free(result);

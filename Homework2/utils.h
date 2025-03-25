@@ -10,5 +10,7 @@
 #define PRE true
 #define N_PRE false
 
+#define swap(type, A, B) swap_##type(A, B) 
+
 #define MAX(A, B) ((A) >= (B) ? (A) : (B))
 #endif
