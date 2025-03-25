@@ -13,14 +13,17 @@ static void swap(ProcDat* left, ProcDat* right){
 
 // different function use different swap && judge
 static void uni_swap(ProcDat* left, ProcDat* right, const char* funcname){
-    if((!strcmp(funcname, "FCFS") || !strcmp(funcname, "RR")) && (left -> arrtime > right -> arrtime || 
+    if((!strcmp(funcname, "FCFS") || !strcmp(funcname, "RR") || !strcmp(funcname, "SRTF")) && (left -> arrtime > right -> arrtime || 
         (left -> arrtime == right -> arrtime && left -> jobtime >= right -> jobtime))) {swap(left, right); return;}
 
-    if((!strcmp(funcname, "SJF") || !strcmp(funcname, "SRTF") || 
-        !strcmp(funcname, "PS")) && left -> arrtime > right -> arrtime) {swap(left, right); return;}
+    if((!strcmp(funcname, "SJF") || !strcmp(funcname, "PS")) && 
+    left -> arrtime > right -> arrtime) {swap(left, right); return;}
 
     if(!strcmp(funcname, "nPS") && (left -> priority < right -> priority || 
         (left -> priority == right -> priority && left -> jobtime >= right -> jobtime))) {swap(left, right); return;}
+
+    if(!strcmp(funcname, "nSJF") && (left -> jobtime > right -> jobtime || (left -> jobtime ==
+         right -> jobtime && left -> arrtime > right -> arrtime))) {swap(left, right); return;}
 }
 
 static void arrorder(SchDat* sdata, const char* funcname){
@@ -59,8 +62,7 @@ void SJF(SchDat* sdata, RProcDat *result){
 
             for(uint i = head; i < tail; ++i)
                 for(uint j = tail - 1; j > i; --j)
-                    if(sdata -> proclist[i].jobtime > sdata -> proclist[j].jobtime)
-                        swap(&sdata -> proclist[i], &sdata -> proclist[j]);
+                    uni_swap(&sdata -> proclist[i], &sdata -> proclist[j], "nSJF");
         }// opt:if add none, pass sort
 
         result[head].tpnum = 1; 
@@ -76,6 +78,36 @@ void SJF(SchDat* sdata, RProcDat *result){
 
 void SRTF(SchDat* sdata, RProcDat *result){
     arrorder(sdata, __func__);
+
+    for(uint i = 0; i < sdata -> listlen; ++i) {
+        result[i].tpnum = 0;// init len
+        result[i].procname = sdata -> proclist[i].procname;// init name
+    }
+
+    typedef struct QNode{
+        uint index;
+        uint leftime;
+    }QNode;
+    QNode* readyque = (QNode*)calloc(sdata -> listlen, sizeof(uint));
+
+    uint head = 0, tail = 1;// head && tail ptr
+    uint ntime = sdata -> proclist[0].arrtime;
+
+    while(head != tail || tail != sdata -> listlen){
+        uint index = readyque[head].index, endtime = 0;
+        if(!result[index].tpnum){
+            result[index].start[result[index].tpnum] = MAX(sdata -> proclist[index].arrtime, ntime);
+            endtime = result[index].start[result[index].tpnum] + sdata -> proclist[index].jobtime;
+
+            // find arrival event
+            for(uint i = index + 1; i < sdata -> listlen; ++i)
+                if(sdata -> proclist[i].arrtime <= endtime){
+                    readyque[tail].index = i;
+                    ++tail;
+                }else break;
+            
+        }
+    }
 }
 
 void RR(SchDat* sdata, RProcDat *result){
