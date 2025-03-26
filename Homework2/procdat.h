@@ -38,7 +38,6 @@ typedef struct AnalDat{
 AnalDat analysis(RProcDat*, uint);
 void print_Analdat(AnalDat);
 void print_RProcDat(RProcDat);
-boole get_from_file(char*, SchDat*);
 
 // scheduler functions
 void FCFS(SchDat*, RProcDat*);
@@ -46,4 +45,6 @@ void SJF(SchDat*, RProcDat*);
 void SRTF(SchDat*, RProcDat*);
 void RR(SchDat*, RProcDat*);
 void PS(SchDat*, RProcDat*);
+
+void procdat_main(char*, char*);
 #endif

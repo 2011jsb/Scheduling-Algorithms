@@ -270,6 +270,34 @@ void print_RProcDat(RProcDat rprocdata){
     printf("\n");
 }
 
-boole get_from_file(char * filepath, SchDat* sdata){
+void procdat_main(char* filepath, char* funcname){
+    FILE* fileptr = fopen(filepath, "r");
+    
+    uint listlen = 0, tmlen = 0;
 
+    fscanf(fileptr, "%u%u", &listlen, &tmlen);
+
+    ProcDat *proclist = (ProcDat*) malloc(listlen * sizeof(ProcDat));
+
+    for(uint i = 0; i < listlen; ++i){
+        fscanf(fileptr,"%u%u%u", &proclist[i].arrtime, &proclist[i].jobtime, &proclist[i].priority);
+        fscanf(fileptr,"%ms", &proclist[i].procname);
+    }
+
+    SchDat sdata = {.listlen = listlen, .tmlen = tmlen, .proclist = proclist};
+
+    fclose(fileptr);
+
+    RProcDat* result = (RProcDat*) calloc(sdata.listlen, sizeof(RProcDat));
+
+    if(!strcmp(funcname, "FCFS")) FCFS(&sdata, result);
+    if(!strcmp(funcname, "SJF")) SJF(&sdata, result);
+    if(!strcmp(funcname, "SRTF")) SRTF(&sdata, result);
+    if(!strcmp(funcname, "RR")) RR(&sdata, result);
+    if(!strcmp(funcname, "PS")) PS(&sdata, result);
+
+    AnalDat anldata = analysis(result, sdata.listlen);
+    print(AnalDat, anldata);
+
+    free(result);free(sdata.proclist);
 }

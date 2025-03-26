@@ -6,17 +6,12 @@
 #include "procdat.h"
 
 int main(int argc, char **argv){
-    if(argc != 2){
-        printf("[usage:]\n %s <input file path> ...", argv[0]);
+    if(argc != 3){
+        printf("[usage:]\n %s <algorithm name:FCFS, SJF, SRTF, RR, PS> <input file path>\n", argv[0]);
         exit(EXIT_FAILURE);
     }else{
-        SchDat sdata; 
-        RProcDat* result = (RProcDat*) calloc(sdata.listlen, sizeof(RProcDat));
-        get_from_file(argv[1], &sdata);
-        FCFS(&sdata, result);
-        AnalDat anldata = analysis(result, sdata.listlen);
-        print(AnalDat, anldata);
-        free(result);
+        procdat_main(argv[2], argv[1]);
     }
+
     return 0;
 }
