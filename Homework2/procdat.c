@@ -251,3 +251,25 @@ AnalDat analysis(RProcDat* result, uint length){
 
     return tmp;
 }
+
+void print_AnalDat(AnalDat analdata){
+    printf("Average Turnaround Time: %0.6lf\n", analdata.AvgTtime);
+    printf("Average Response Time: %0.6lf\n", analdata.AvgRtime);
+    printf("Average Waiting Time: %0.6lf\n", analdata.AvgWtime);
+    printf("CPU Utilization: %0.6lf\n", analdata.CPUtil);
+    printf("Job Throughput: %0.6lf\n", analdata.JobTput);
+}
+
+void print_RProcDat(RProcDat rprocdata){
+    printf("procname: %s\n", rprocdata.procname);
+    printf("arrtime: %u\n", rprocdata.arrtime);
+    printf("time period numbers: %u\n", rprocdata.tpnum);
+    printf("time periods: \n");
+    for(uint j = 0; j < rprocdata.tpnum; ++j)
+        printf("%u-%u ", rprocdata.start[j], rprocdata.end[j]);
+    printf("\n");
+}
+
+boole get_from_file(char * filepath, SchDat* sdata){
+
+}

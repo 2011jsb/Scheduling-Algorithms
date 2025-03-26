@@ -36,6 +36,9 @@ typedef struct AnalDat{
 
 //tool functions
 AnalDat analysis(RProcDat*, uint);
+void print_Analdat(AnalDat);
+void print_RProcDat(RProcDat);
+boole get_from_file(char*, SchDat*);
 
 // scheduler functions
 void FCFS(SchDat*, RProcDat*);
