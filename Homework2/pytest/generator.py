@@ -14,7 +14,7 @@ def generator(nums: int = 20):
         listlen, tmlen = randint(10, 20), randint(5, 20)
         tmpfile.write(f"{listlen} {tmlen}\n")
         for j in range(listlen): 
-            tmpfile.write(f"{randint(1, 100)} {randint(1, 100)} {randint(1,40)} {randint(100000, 999999)}\n")
+            tmpfile.write(f"{randint(1, 100)} {randint(10, 100)} {randint(1,40)} {randint(100000, 999999)}\n")
         
         tmpfile.close()
 
