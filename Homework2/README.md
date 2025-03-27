@@ -13,7 +13,7 @@
 - procname中应不包含空格等会分割字符串的字符
 ## 对输入的特殊说明
 - 在文件操作中使用了一些POSIX标准的扩展，请在GNU环境中使用gcc等支持POSIX的扩展的编译器执行
-- 在测试过程中, testcases中的文件均采用generator.py生成
+- 在测试过程中, testcases中的文件均采用generator.py生成（若python工作环境中缺少依赖，请运行 pip/pip3 install -r pytest/requirements.txt来安装依赖）
 
 # 一些算法的说明
 - 在FCFS、SJF 、RR的实现中，出于方便考虑并未额外实现就绪队列和等待队列等结构，而是采用了排序和在存储进程信息的数组上实现队列等方式来代替。这些方式有些可能并不适合时序仿真（如在SJF中，若进行时序仿真，访问有越界风险）；
