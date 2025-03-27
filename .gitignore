@@ -1,7 +1,5 @@
 .vscode
 
-OtherClone/*
-
 *.o
 
 /build/*

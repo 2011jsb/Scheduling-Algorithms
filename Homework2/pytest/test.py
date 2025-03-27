@@ -54,7 +54,7 @@ def draw(result:list, indexname:str) -> None:
     plt.close()
     
 if __name__ == "__main__":
-    testnums = [10, 20, 50, 100]
+    testnums = [10, 20, 50, 100, 500, 1000]
     for i in testnums:
         result = test(i)
         for j in _IDX_T.keys():
