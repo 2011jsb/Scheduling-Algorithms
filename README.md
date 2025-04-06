@@ -1,25 +1,31 @@
 # project struct
-## Homework2
-- README.md
-- 杂项文件 utils.h
-- 算法与数据结构头文件 procdat.h, 实现文件 procdat.c
-- 主程序文件 homewrok2.c
-### pytest
-- python自动化测试文件 test.py 与 随机测试文件生成器 generator.py
+## *Homework2*
+*README.md*<br>
+*utils.h* - miscs/define files<br>
+*procdat.h/procdat.c* - data structutre/ algorithm functions defination/implementation<br>
+*homewrok2.c* - main function<br>
+## *pytest*
+*generator.py* - random files generator<br>
+*test.py* - main test file<br>
 
-# 输入文件的格式说明
-- 第一行：进程数量n/ 时间片长度 tmlen
-- 接下来n行，进程数据，按照 arrival time /job time /priority /procname的顺序排列，以空格间隔
-- procname中应不包含空格等会分割字符串的字符
-## 对输入的特殊说明
-- 在文件操作中使用了一些POSIX标准的扩展，请在GNU环境中使用gcc等支持POSIX的扩展的编译器执行
-- 在测试过程中, testcases中的文件均采用generator.py生成
+# Format Specification of the Input File  
+***First line***: Number of processes `n` / Time slice length `tmlen` <br>  
+***Next `n` lines***: Process data, arranged in the order of `arrival time` / `job time` / `priority` / `procname`, separated by spaces  
+*(The `procname` should not contain characters that may split the string, e.g., spaces.)* <br>  
 
-# 一些算法的说明
-- 在FCFS、SJF 、RR的实现中，出于方便考虑并未额外实现就绪队列和等待队列等结构，而是采用了排序和在存储进程信息的数组上实现队列等方式来代替。这些方式有些可能并不适合时序仿真（如在SJF中，若进行时序仿真，访问有越界风险）；
-- 在FCFS的实现中，就绪队列按先arrival time后运行时间排列（即若arrival time相同，则按运行时间长短安排就绪队列），在SJF中则反之；
-- 在Priorities Scheduling中，就绪队列按先Priority后运行时间排列, 且仅实现了非抢占式PS;
+## Special Notes on the Input  
+***1.* Some POSIX-standard extensions are used in file operations. Please use a GNU environment with a compiler that supports POSIX extensions (e.g., gcc) for execution.** <br>  
+***2.* During testing, the files in the `testcases` directory are all generated using `generator.py`.** <br> 
 
-# 项目的一些缺点和后续可能的改进
-- 由于时间等因素，代码没有加入简单的错误处理机制，后续可以进行改进；
-- 部分代码的实现并没有进行优化，效率上存在一定问题；
+# Explanations of Some Algorithms  
+***1.*** In the implementations of FCFS, SJF, and RR, for convenience, additional structures like ready queues and waiting queues are not explicitly implemented. Instead, methods such as sorting and simulating queues directly on the array storing process information are used. Some of these approaches may not be suitable for timing simulations (e.g., in SJF, there is a risk of out-of-bounds access during timing simulations). <br> 
+***2.*** In the FCFS implementation, the ready queue is arranged first by `arrival time` and then by runtime (i.e., if the arrival times are the same, processes are ordered by runtime). In SJF, the opposite is done. <br>  
+***3.*** In Priority Scheduling (PS), the ready queue is arranged first by `priority` and then by runtime. Only non-preemptive PS is implemented. <br> 
+
+# Some Shortcomings of the Project and Possible Future Improvements  
+***1.*** Due to time constraints, the code lacks a simple error-handling mechanism, which could be improved in the future. <br>
+***2.*** Some parts of the code are not optimized, leading to efficiency issues. <br>
+***3.*** **If you identify any problems in the project, feel free to provide feedback.**
+<br> 
+<br>
+*Portions of the README.md were AI-generated for expediency. Should any inaccuracies be found, please scrutinize and report them in detail.*<br>
